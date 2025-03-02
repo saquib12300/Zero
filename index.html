@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Anxt Ai- Ultimate</title>
+
+  <!-- FontAwesome & Tailwind -->
+  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=El+Messiri:wght@400;700&display=swap" rel="stylesheet">
+
+  <!-- Particle Animation -->
+  <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+
+  <style>
+    body {
+      font-family: 'El Messiri', sans-serif;
+      background: black;
+      color: white;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    #particles-js {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+    }
+
+    .glass-container {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(14px);
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 4px 15px rgba(255, 255, 255, 0.3);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      width: 90%;
+      max-width: 400px;
+      text-align: center;
+    }
+
+    .glass-container:hover {
+      transform: scale(1.05);
+    }
+
+    .highlight {
+      color: #ffcc00;
+      font-weight: bold;
+    }
+
+    .pending {
+      color: #ff9800;
+      font-weight: bold;
+    }
+
+    .big {
+      color: #28a745;
+      font-weight: bold;
+    }
+
+    .small {
+      color: #dc3545;
+      font-weight: bold;
+    }
+
+    .period-box {
+      background: linear-gradient(135deg, #ff9800, #ff5722);
+      padding: 10px 15px;
+      border-radius: 10px;
+      display: inline-block;
+      font-size: 1.2rem;
+      font-weight: bold;
+      text-shadow: 0 0 10px rgba(255, 87, 34, 0.8);
+    }
+
+    .animate-fade-in {
+      animation: fadeIn 0.5s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Particle Background -->
+  <div id="particles-js"></div>
+
+  <!-- Header -->
+  <header class="w-full text-center py-6">
+    <h1 class="text-3xl font-bold highlight">
+      <i class="fas fa-chart-line"></i> 
+      <a href="https://t.me/+UXXqSylBcNZhMGM9" target="_blank" class="text-red-500 underline">ZERO POINT AI</a>
+    </h1>
+    <p class="mt-2 text-gray-300 text-sm">PRESENTED BY ANXT</p>
+  </header>
+
+  <!-- Period & Timer -->
+  <div class="glass-container">
+    <h2 class="text-lg font-semibold">
+      <i class="fas fa-clock text-blue-400"></i> Current Period:
+    </h2>
+    <p id="period" class="period-box">Loading...</p>
+    <p class="text-xl mt-2">
+      <i class="fas fa-hourglass-half text-yellow-400"></i>
+      <span id="timer">00:00</span>
+    </p>
+  </div>
+
+  <!-- Current Prediction -->
+  <div class="glass-container mt-4">
+    <h2 class="text-lg font-semibold">
+      <i class="fas fa-magic text-purple-400"></i> Prediction:
+    </h2>
+    <p id="prediction" class="pending text-lg">Pending...</p>
+    <p id="chance" class="text-gray-400 text-sm">Chance: --%</p>
+  </div>
+
+  <!-- Prediction History -->
+  <div class="glass-container mt-4">
+    <h2 class="text-lg font-semibold">
+      <i class="fas fa-history"></i> Last Predictions:
+    </h2>
+    <ul id="historyList" class="text-gray-300 mt-2 space-y-2"></ul>
+  </div>
+
+  <script>
+    const predictionSequence = ["Big", "Big", "Big", "Small", "Small", "Big", "Small", "Big", "Big", "Small", "Small", "Small", "Small", "Small", "Big", "Big", "Big", "Big", "Small", "Big"];
+    let predictionIndex = 0;
+
+    function updatePeriodAndTimer() {
+      const now = new Date();
+      const seconds = now.getUTCSeconds();
+      const remainingSeconds = 60 - seconds;
+      const totalMinutes = now.getUTCHours() * 60 + now.getUTCMinutes();
+
+      // Update Period Number
+      const periodNumber = `${now.getUTCFullYear()}${(now.getUTCMonth() + 1).toString().padStart(2, '0')}${now.getUTCDate().toString().padStart(2, '0')}1000${(10001 + totalMinutes)}`;
+      document.getElementById("period").textContent = periodNumber;
+
+      // Update Timer
+      document.getElementById("timer").textContent = `00:${remainingSeconds.toString().padStart(2, '0')}`;
+
+      // If a new period starts, generate a new prediction
+      if (remainingSeconds === 59) {
+        generatePrediction(periodNumber);
+      }
+    }
+
+    function generatePrediction(periodNumber) {
+      const prediction = predictionSequence[predictionIndex % predictionSequence.length];
+      predictionIndex++;
+
+      document.getElementById("prediction").textContent = "Pending...";
+      document.getElementById("prediction").className = "pending text-lg";
+      document.getElementById("chance").textContent = "Chance: --%";
+
+      setTimeout(() => {
+        document.getElementById("prediction").textContent = prediction;
+        document.getElementById("prediction").className = prediction === "Big" ? "big text-lg" : "small text-lg";
+        document.getElementById("chance").textContent = `Chance: ${Math.floor(Math.random() * (95 - 65 + 1)) + 65}%`;
+
+        updateHistory(periodNumber, prediction);
+      }, 60000);
+    }
+
+    function updateHistory(periodNumber, prediction) {
+      const historyList = document.getElementById("historyList");
+      const historyEntry = document.createElement("li");
+      historyEntry.className = "animate-fade-in";
+      historyEntry.innerHTML = `<strong>Period:</strong> ${periodNumber} - <strong>Prediction:</strong> ➢ ${prediction}`;
+      historyList.prepend(historyEntry);
+    }
+
+    // Initialize Timer
+    setInterval(updatePeriodAndTimer, 1000);
+
+    // Initialize Particle Animation
+    particlesJS("particles-js", {
+      particles: {
+        number: { value: 100 },
+        size: { value: 3 },
+        move: { speed: 2 },
+      }
+    });
+  </script>
+
+</body>
+</html>
