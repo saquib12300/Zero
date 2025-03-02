@@ -91,6 +91,20 @@
       to { opacity: 1; transform: translateY(0); }
     }
   </style>
+
+  <script>
+    // Check Internet Connection
+    function checkInternet() {
+      if (!navigator.onLine) {
+        history.back(); // Auto go back if offline
+      }
+    }
+
+    // Check on Load & When Connection Changes
+    window.addEventListener("load", checkInternet);
+    window.addEventListener("offline", checkInternet);
+  </script>
+
 </head>
 <body>
 
@@ -100,10 +114,8 @@
   <!-- Header -->
   <header class="w-full text-center py-6">
     <h1 class="text-3xl font-bold highlight">
-      <i class="fas fa-chart-line"></i> 
-      <a href="https://t.me/+UXXqSylBcNZhMGM9" target="_blank" class="text-red-500 underline">ZERO POINT AI</a>
+      <i class="fas fa-chart-line"></i> ZERO POINT <span class="text-red-500">AI</span>
     </h1>
-    <p class="mt-2 text-gray-300 text-sm">PRESENTED BY ANXT</p>
   </header>
 
   <!-- Period & Timer -->
@@ -136,8 +148,8 @@
   </div>
 
   <script>
-    const predictionSequence = ["Big", "Big", "Big", "Small", "Small", "Big", "Small", "Big", "Big", "Small", "Small", "Small", "Small", "Small", "Big", "Big", "Big", "Big", "Small", "Big"];
-    let predictionIndex = 0;
+    const predictionSequence = ["Big", "Small"];
+    let lastPeriod = null;
 
     function updatePeriodAndTimer() {
       const now = new Date();
@@ -145,41 +157,40 @@
       const remainingSeconds = 60 - seconds;
       const totalMinutes = now.getUTCHours() * 60 + now.getUTCMinutes();
 
-      // Update Period Number
+      // Generate Period Number
       const periodNumber = `${now.getUTCFullYear()}${(now.getUTCMonth() + 1).toString().padStart(2, '0')}${now.getUTCDate().toString().padStart(2, '0')}1000${(10001 + totalMinutes)}`;
       document.getElementById("period").textContent = periodNumber;
-
-      // Update Timer
       document.getElementById("timer").textContent = `00:${remainingSeconds.toString().padStart(2, '0')}`;
 
-      // If a new period starts, generate a new prediction
-      if (remainingSeconds === 59) {
-        generatePrediction(periodNumber);
+      // When period changes, generate a new prediction
+      if (lastPeriod !== periodNumber) {
+        lastPeriod = periodNumber;
+        document.getElementById("prediction").textContent = "Pending...";
+        document.getElementById("prediction").className = "pending text-lg";
+        document.getElementById("chance").textContent = "Chance: --%";
+
+        setTimeout(() => {
+          generatePrediction(periodNumber);
+        }, 5000); // Show pending for 5 seconds before updating
       }
     }
 
     function generatePrediction(periodNumber) {
-      const prediction = predictionSequence[predictionIndex % predictionSequence.length];
-      predictionIndex++;
+      const prediction = predictionSequence[Math.floor(Math.random() * predictionSequence.length)];
+      const randomChance = Math.floor(Math.random() * (95 - 65 + 1)) + 65;
 
-      document.getElementById("prediction").textContent = "Pending...";
-      document.getElementById("prediction").className = "pending text-lg";
-      document.getElementById("chance").textContent = "Chance: --%";
+      document.getElementById("prediction").textContent = prediction;
+      document.getElementById("prediction").className = prediction === "Big" ? "big text-lg" : "small text-lg";
+      document.getElementById("chance").textContent = `Chance: ${randomChance}%`;
 
-      setTimeout(() => {
-        document.getElementById("prediction").textContent = prediction;
-        document.getElementById("prediction").className = prediction === "Big" ? "big text-lg" : "small text-lg";
-        document.getElementById("chance").textContent = `Chance: ${Math.floor(Math.random() * (95 - 65 + 1)) + 65}%`;
-
-        updateHistory(periodNumber, prediction);
-      }, 60000);
+      updateHistory(periodNumber, prediction, randomChance);
     }
 
-    function updateHistory(periodNumber, prediction) {
+    function updateHistory(periodNumber, prediction, chance) {
       const historyList = document.getElementById("historyList");
       const historyEntry = document.createElement("li");
       historyEntry.className = "animate-fade-in";
-      historyEntry.innerHTML = `<strong>Period:</strong> ${periodNumber} - <strong>Prediction:</strong> ➢ ${prediction}`;
+      historyEntry.innerHTML = `<strong>Period:</strong> ${periodNumber} - <strong>Prediction:</strong> ➢ ${prediction} (Chance: ${chance}%)`;
       historyList.prepend(historyEntry);
     }
 
